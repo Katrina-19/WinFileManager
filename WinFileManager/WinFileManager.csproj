@@ -82,6 +82,7 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
+    <Content Include="Pictures\30.png" />
     <Content Include="Pictures\add-folder.png" />
     <Content Include="Pictures\copy.png" />
     <Content Include="Pictures\cut.png" />

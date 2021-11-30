@@ -30,7 +30,7 @@ namespace WinFileManager
                 switch (di.DriveType)    //set the drive's icon
                 {
                     case DriveType.CDRom:
-                        driveImage = 3;
+                        driveImage = 30;
                         break;
                     case DriveType.Network:
                         driveImage = 6;
@@ -54,7 +54,7 @@ namespace WinFileManager
                 twDir.Nodes.Add(node);
             }
         }
-        private void treeView1_BeforeExpand(object sender, TreeViewCancelEventArgs e)
+        private void twDir_BeforeExpand(object sender, TreeViewCancelEventArgs e)
         {
             if (e.Node.Nodes.Count > 0)
             {
@@ -113,5 +113,44 @@ namespace WinFileManager
                 }
             }
         }
+
+        private void twDir_AfterSelect(object sender, TreeViewEventArgs e)
+        {
+            TreeNode t = e.Node;
+            DirectoryInfo dirInf = t.Tag as DirectoryInfo;
+            if (dirInf == null) { return; }
+
+            //this.UpdateList(dirInf);
+        }
+       /* private void UpdateList(DirectoryInfo dirInf)
+        {
+            this.listBox1.Items.Clear();
+            string[] names = dirInf.GetDirectories(e.Node.Tag.ToString());
+            foreach (string name in names)
+            {
+                ListViewItem lvi = new ListViewItem(name);
+                Directory rType = dirInf.GetType();
+                lvi.Tag = rType;
+
+                string value = null;
+                if (rType == RegistryValueKind.Binary)
+                {
+                    byte[] valueObj = dirInf.GetValue(name) as byte[];
+                    foreach (byte item in valueObj)
+                    {
+                        value += item.ToString("X2") + " ";
+                    }
+                }
+                else
+                {
+                    value = dirInf.GetValue(name).ToString();
+                }
+
+                string type = rType.ToString();
+                lvi.SubItems.Add(type);
+                lvi.SubItems.Add(value.Trim());
+                this.listBox1.Items.Add(lvi);
+            }
+        }*/
     }
 }
