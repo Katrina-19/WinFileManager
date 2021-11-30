@@ -82,9 +82,17 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
+    <Content Include="Pictures\add-folder.png" />
+    <Content Include="Pictures\copy.png" />
+    <Content Include="Pictures\cut.png" />
+    <Content Include="Pictures\delete.png" />
     <Content Include="Pictures\free-icon-left-arrow-109618.png" />
     <Content Include="Pictures\free-icon-right-arrow-109617.png" />
     <Content Include="Pictures\free-icon-up-arrow-109583.png" />
+    <Content Include="Pictures\link.png" />
+    <Content Include="Pictures\paste.png" />
+    <Content Include="Pictures\setting.png" />
+    <Content Include="Pictures\share.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
