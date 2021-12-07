@@ -36,19 +36,19 @@ namespace WinFileManager
                 switch (di.DriveType)    //set the drive's icon
                 {
                     case DriveType.CDRom:
-                        driveImage = imageList1.Images.IndexOfKey("Hardrive.png");
+                        driveImage = 2;
                         break;
                     case DriveType.Network:
-                        driveImage = 6;
+                        driveImage = 1;
                         break;
                     case DriveType.NoRootDirectory:
-                        driveImage = 8;
+                        driveImage = 4;
                         break;
                     case DriveType.Unknown:
-                        driveImage = 8;
+                        driveImage = 3;
                         break;
                     default:
-                        driveImage = 2;
+                        driveImage = 0;
                         break;
                 }
                 TreeNode node = new TreeNode(drive.Substring(0, 1), driveImage, driveImage);
@@ -141,8 +141,9 @@ namespace WinFileManager
                     }
                     for (int i = 0; i < dirs.Length; i++)
                     {
-                        listView1.Items.Add(dirs[i].Name);
+                        listView1.Items.Add(dirs[i].Name,118);
                     }
+                    label1.Text ="Files:" + (files.Count() + dirs.Count()).ToString();
                 }
             }
             catch (Exception e)
@@ -154,10 +155,11 @@ namespace WinFileManager
         {
             TreeNode t = e.Node;
             DirectoryInfo dirInf = t.Tag as DirectoryInfo;
-            if (dirInf == null) { return; }
-            FilePath = dirInf.FullName;
-            loadFiles();
+            //if (dirInf == null) { return; }
+            FilePath = dirInf.Name;
             tbPath.Text = FilePath;
+            loadFiles();
+            
             //this.UpdateList(dirInf);
         }
 
@@ -188,12 +190,6 @@ namespace WinFileManager
             FilePath = tbPath.Text;
             loadFiles();
             isFile = false;
-        }
-
-        private void tbPath_TextChanged(object sender, EventArgs e)
-        {
-
-
         }
         /* private void UpdateList(DirectoryInfo dirInf)
 {
