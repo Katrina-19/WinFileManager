@@ -43,17 +43,17 @@ namespace WinFileManager
             this.btnCopy = new System.Windows.Forms.Button();
             this.btnCut = new System.Windows.Forms.Button();
             this.btnFolder = new System.Windows.Forms.Button();
-            this.listBox1 = new System.Windows.Forms.ListBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.btnup = new System.Windows.Forms.Button();
             this.btnright = new System.Windows.Forms.Button();
             this.btnleft = new System.Windows.Forms.Button();
             this.textBox1 = new System.Windows.Forms.TextBox();
-            this.textBox2 = new System.Windows.Forms.TextBox();
+            this.tbPath = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.imageList1 = new System.Windows.Forms.ImageList(this.components);
+            this.listView1 = new System.Windows.Forms.ListView();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
@@ -182,15 +182,6 @@ namespace WinFileManager
             this.btnFolder.TabIndex = 0;
             this.btnFolder.UseVisualStyleBackColor = false;
             // 
-            // listBox1
-            // 
-            this.listBox1.FormattingEnabled = true;
-            this.listBox1.ItemHeight = 16;
-            this.listBox1.Location = new System.Drawing.Point(189, 150);
-            this.listBox1.Name = "listBox1";
-            this.listBox1.Size = new System.Drawing.Size(607, 404);
-            this.listBox1.TabIndex = 2;
-            // 
             // groupBox2
             // 
             this.groupBox2.Controls.Add(this.btnup);
@@ -234,19 +225,19 @@ namespace WinFileManager
             // 
             // textBox1
             // 
-            this.textBox1.Location = new System.Drawing.Point(617, 102);
-            this.textBox1.Multiline = true;
+            this.textBox1.Location = new System.Drawing.Point(617, 112);
             this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(179, 36);
+            this.textBox1.Size = new System.Drawing.Size(179, 22);
             this.textBox1.TabIndex = 3;
             // 
-            // textBox2
+            // tbPath
             // 
-            this.textBox2.Location = new System.Drawing.Point(189, 102);
-            this.textBox2.Multiline = true;
-            this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(422, 36);
-            this.textBox2.TabIndex = 4;
+            this.tbPath.Location = new System.Drawing.Point(189, 112);
+            this.tbPath.Name = "tbPath";
+            this.tbPath.Size = new System.Drawing.Size(422, 22);
+            this.tbPath.TabIndex = 4;
+            this.tbPath.TextChanged += new System.EventHandler(this.tbPath_TextChanged);
+            this.tbPath.Enter += new System.EventHandler(this.Form1_Load);
             // 
             // label1
             // 
@@ -260,7 +251,7 @@ namespace WinFileManager
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(192, 83);
+            this.label2.Location = new System.Drawing.Point(189, 93);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(37, 16);
             this.label2.TabIndex = 9;
@@ -269,7 +260,7 @@ namespace WinFileManager
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(617, 83);
+            this.label3.Location = new System.Drawing.Point(614, 93);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(53, 16);
             this.label3.TabIndex = 10;
@@ -285,18 +276,29 @@ namespace WinFileManager
             this.imageList1.Images.SetKeyName(3, "Folder Grey.png");
             this.imageList1.Images.SetKeyName(4, "Blank.png");
             // 
+            // listView1
+            // 
+            this.listView1.HideSelection = false;
+            this.listView1.Location = new System.Drawing.Point(189, 150);
+            this.listView1.Name = "listView1";
+            this.listView1.Size = new System.Drawing.Size(607, 404);
+            this.listView1.TabIndex = 11;
+            this.listView1.UseCompatibleStateImageBehavior = false;
+            this.listView1.ItemSelectionChanged += new System.Windows.Forms.ListViewItemSelectionChangedEventHandler(this.listView1_ItemSelectionChanged);
+            this.listView1.DoubleClick += new System.EventHandler(this.listView1_DoubleClick);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 585);
+            this.Controls.Add(this.listView1);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.textBox2);
+            this.Controls.Add(this.tbPath);
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.groupBox2);
-            this.Controls.Add(this.listBox1);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.twDir);
             this.Name = "Form1";
@@ -313,13 +315,12 @@ namespace WinFileManager
 
         private System.Windows.Forms.TreeView twDir;
         private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.ListBox listBox1;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.Button btnup;
         private System.Windows.Forms.Button btnright;
         private System.Windows.Forms.Button btnleft;
         private System.Windows.Forms.TextBox textBox1;
-        private System.Windows.Forms.TextBox textBox2;
+        private System.Windows.Forms.TextBox tbPath;
         private System.Windows.Forms.Button btnSettings;
         private System.Windows.Forms.Button btnDelete;
         private System.Windows.Forms.Button btnShare;
@@ -334,6 +335,7 @@ namespace WinFileManager
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.ImageList imageList1;
+        private System.Windows.Forms.ListView listView1;
     }
 }
 
