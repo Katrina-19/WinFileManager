@@ -15,116 +15,87 @@ namespace WinFileManager
 {
     public partial class Form1 : Form
     {
-        private string FilePath = "home";
+        private string FilePath = "D:";
         //private string cNode= "C:";
         private bool isFile=false;
         private string selectedItem = "";
+        private const int BYTE_IN_KILOBYTE = 1000;
+        private const int COLUMN_WIDTH = 120;
+        //private string topLevelName = "Этот компьютер";
+        private string[] viewModes = { "Крупные значки", "Мелкие значки", "Список", "Таблица", "Плитка" };
+        private Dictionary<string, int> columnsFiles = new Dictionary<string, int>();
+        private Dictionary<string, int> columnsDrives = new Dictionary<string, int>();
+        private string[] columnsForFiles = { "Имя", "Размер", "Дата создания", "Дата изменения" };
+        private string[] columnsForDrives = { "Имя", "Тип", "Файловая система", "Общий размер", "Свободно" };
+        private List<string> prevStack;
+        private List<string> nextStack;
         public Form1()
         {
             InitializeComponent();
+            DriveTreeInit();
+            cbView.SelectedIndex = 0;
+            cbView.SelectedIndexChanged += cbView_SelectedIndexChanged;
+            prevStack = new List<string>();
+            nextStack = new List<string>();
         }
 
         private void Form1_Load(object sender,EventArgs e)
         {
-            //get a list of the drives
             tbPath.Text= FilePath;
             loadFiles();
-            string[] drives = Environment.GetLogicalDrives();
+        }
+        public void DriveTreeInit()
+        {
+            string[] drivesArray = Directory.GetLogicalDrives();
 
-            foreach (string drive in drives)
+            twDir.BeginUpdate();
+            twDir.Nodes.Clear();
+
+            foreach (string s in drivesArray)
             {
-                TreeNode node = new TreeNode();
-                node.Tag = drive;
-                node.Text = drive;
-                DriveInfo di = new DriveInfo(drive);
-                int driveImage;
+                TreeNode drive = new TreeNode(s, 0, 0);
+                twDir.Nodes.Add(drive);
 
-                switch (di.DriveType)    //set the drive's icon
-                {
-                    case DriveType.CDRom:
-                        driveImage = 2;
-                        break;
-                    case DriveType.Network:
-                        driveImage = 1;
-                        break;
-                    case DriveType.NoRootDirectory:
-                        driveImage = 4;
-                        break;
-                    case DriveType.Unknown:
-                        driveImage = 3;
-                        break;
-                    default:
-                        driveImage = 0;
-                        break;
-                }
-                twDir.Nodes.Add(node);
-                node.EnsureVisible();
-                twDir.Refresh();
+                GetDirs(drive);
+            }
 
-                if (di.IsReady == true)
-                    node.Nodes.Add("...");
 
-                twDir.Nodes.Add(node);
+            twDir.EndUpdate();
+        }
+        public void GetDirs(TreeNode node)
+        {
+            DirectoryInfo[] diArray;
+
+            node.Nodes.Clear();
+
+            string fullPath = node.FullPath;
+            DirectoryInfo di = new DirectoryInfo(fullPath);
+
+            try
+            {
+                diArray = di.GetDirectories();
+            }
+            catch
+            {
+                return;
+            }
+
+            foreach (DirectoryInfo dirinfo in diArray)
+            {
+                TreeNode dir = new TreeNode(dirinfo.Name, 1, 1);
+                node.Nodes.Add(dir);
             }
         }
         private void twDir_BeforeExpand(object sender, TreeViewCancelEventArgs e)
         {
-            if (e.Node.Nodes.Count > 0)
+            twDir.BeginUpdate();
+
+            foreach (TreeNode node in e.Node.Nodes)
             {
-                if (e.Node.Nodes[0].Text == "..." && e.Node.Nodes[0].Tag == null)
-                {
-                    e.Node.Nodes.Clear();
-
-                    //get the list of sub direcotires
-                    string[] dirs = Directory.GetDirectories(e.Node.Tag.ToString());
-
-                    //add files of rootdirectory
-                    /*DirectoryInfo rootDir = new DirectoryInfo(e.Node.Tag.ToString());
-                    foreach (var file in rootDir.GetFiles())
-                    {
-                        TreeNode n = new TreeNode(file.Name, 13, 13);
-                        e.Node.Nodes.Add(n);
-                    }*/
-
-                    foreach (string dir in dirs)
-                    {
-                        DirectoryInfo di = new DirectoryInfo(dir);
-                        TreeNode node = new TreeNode(di.Name, 0, 1);
-
-                        try
-                        {
-                            //keep the directory's full path in the tag for use later
-                            node.Tag = dir;
-
-                            //if the directory has sub directories add the place holder
-                            if (di.GetDirectories().Count() > 0)
-                                node.Nodes.Add(null, "...", 0, 0);
-
-                            foreach (var file in di.GetFiles())
-                            {
-                                TreeNode n = new TreeNode(file.Name, 13, 13);
-                                node.Nodes.Add(n);
-                            }
-
-                        }
-                        catch (UnauthorizedAccessException)
-                        {
-                            //display a locked folder icon
-                            node.ImageIndex = 5;
-                            node.SelectedImageIndex = 5;
-                        }
-                        catch (Exception ex)
-                        {
-                            MessageBox.Show(ex.Message, "DirectoryLister",
-                                MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        }
-                        finally
-                        {
-                            e.Node.Nodes.Add(node);
-                        }
-                    }
-                }
+                GetDirs(node);
             }
+
+            twDir.EndUpdate();
         }
         public void loadFiles()
         {
@@ -384,14 +355,26 @@ namespace WinFileManager
 
         private void twDir_AfterSelect(object sender, TreeViewEventArgs e)
         {
-            TreeNode t = e.Node;
-            DirectoryInfo dirInf = t.Tag as DirectoryInfo;
-            //if (dirInf == null) { return; }
-            FilePath = dirInf.Name;
-            tbPath.Text = FilePath;
+            TreeNode selectedNode = e.Node;
+            FilePath = selectedNode.FullPath;
+            tbPath.Text = FilePath.Substring(0, FilePath.Length - 1); ;
+
+            DirectoryInfo di = new DirectoryInfo(FilePath);
+            FileInfo[] fiArray;
+            DirectoryInfo[] diArray;
+
+            try
+            {
+                fiArray = di.GetFiles();
+                diArray = di.GetDirectories();
+            }
+            catch
+            {
+                return;
+            }
+
+            listView1.Items.Clear();
             loadFiles();
-            
-            //this.UpdateList(dirInf);
         }
 
         private void listView1_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
@@ -433,35 +416,221 @@ namespace WinFileManager
         {
             
         }
-        /* private void UpdateList(DirectoryInfo dirInf)
-{
-this.listBox1.Items.Clear();
-string[] names = dirInf.GetDirectories(e.Node.Tag.ToString());
-foreach (string name in names)
-{
-ListViewItem lvi = new ListViewItem(name);
-Directory rType = dirInf.GetType();
-lvi.Tag = rType;
 
-string value = null;
-if (rType == RegistryValueKind.Binary)
-{
-byte[] valueObj = dirInf.GetValue(name) as byte[];
-foreach (byte item in valueObj)
-{
-value += item.ToString("X2") + " ";
-}
-}
-else
-{
-value = dirInf.GetValue(name).ToString();
-}
+        private void twDir_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
+        {
+            TreeNode selectedNode = e.Node;
+            FilePath = selectedNode.FullPath;
+            tbPath.Text = FilePath;
 
-string type = rType.ToString();
-lvi.SubItems.Add(type);
-lvi.SubItems.Add(value.Trim());
-this.listBox1.Items.Add(lvi);
-}
-}*/
+            DirectoryInfo di = new DirectoryInfo(FilePath);
+            FileInfo[] fiArray;
+            DirectoryInfo[] diArray;
+
+            try
+            {
+                fiArray = di.GetFiles();
+                diArray = di.GetDirectories();
+            }
+            catch
+            {
+                return;
+            }
+
+            listView1.Items.Clear();
+            loadFiles();
+        }
+
+        private void btnFolder_Click(object sender, EventArgs e)
+        {
+            string myname = "";
+            string mypath = "";
+
+
+            FolderBrowserDialog dialog = new FolderBrowserDialog();
+            dialog.Description = "Add Folder";
+            dialog.ShowNewFolderButton = true;
+            dialog.SelectedPath = tbPath.Text;
+
+            if (dialog.ShowDialog() == DialogResult.OK)
+            {
+                mypath = dialog.SelectedPath;
+                myname = mypath.Substring(mypath.LastIndexOf("\\") + 1);
+
+                AddFolderNode(myname, mypath);
+
+            }
+        }
+        private void AddFolderNode(string name, string path)
+        {
+            
+                try
+                {
+                    if (Directory.Exists(path))
+                    {
+                        foreach (string dir in Directory.GetDirectories(path))
+                        {
+                            TreeNode node = new TreeNode();
+                            node.Tag = dir;
+                            node.Text = dir.Substring(dir.LastIndexOf(@"\") + 1);
+                            node.ImageIndex = 1;
+                            twDir.Nodes.Add(node);
+                        }
+                    }
+                }
+                catch (Exception ex) 
+                {
+                    MessageBox.Show("Error while Filling the Explorer:" + ex.Message);
+                }
+           
+        }
+
+        private void btnCut_Click(object sender, EventArgs e)
+        {
+           /* FileSystemInfo fsObject;
+            string mypath = "";
+
+            FolderBrowserDialog dialog = new FolderBrowserDialog();
+            dialog.Description = "Ыelect the location to move the file";
+            dialog.ShowNewFolderButton = false;
+            dialog.SelectedPath = tbPath.Text;
+            mypath = dialog.SelectedPath;
+            if (dialog.ShowDialog() == DialogResult.OK)
+            {
+                string message = "";
+                try
+                {
+                    if (fsObject is DirectoryInfo)
+                    {
+                        message = "Не возможно переместить каталог";
+                        ((DirectoryInfo)fsObject).MoveTo(mypath);
+                    }
+                    else
+                    {
+                        message = "Не возможно переместить файл";
+                        ((FileInfo)fsObject).MoveTo(mypath);
+                    }
+                    
+                }
+                catch
+                {
+                    MessageBox.Show(message, "Внимание", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    
+                }
+            }
+            //listView1.SelectedItems.Clear();FileSystemInfo fsObject*/
+        }
+
+        private void btnCopy_Click(object sender, EventArgs e)
+        {
+           /* string mypath = "";
+
+            FolderBrowserDialog dialog = new FolderBrowserDialog();
+            dialog.Description = "Ыelect the location to move the file";
+            dialog.ShowNewFolderButton = false;
+            dialog.SelectedPath = tbPath.Text;
+            mypath = dialog.SelectedPath;
+            if (dialog.ShowDialog() == DialogResult.OK)
+            {
+                string message = "";
+                try
+                {
+                    message = "Не возможно переместить файл";
+                    ((FileInfo)fsObject).CopyTo(mypath);
+                }
+                catch
+                {
+                    MessageBox.Show(message, "Внимание", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                }
+            }*/
+        }
+
+        private void btnDelete_Click(object sender, EventArgs e)
+        {
+           /* string message = "";
+            try
+            {
+                if (fsObject is DirectoryInfo)
+                {
+                    message = "Не возможно переместить каталог";
+                    ((DirectoryInfo)fsObject).Delete(true);
+                }
+                else
+                {
+                    message = "Не возможно переместить файл";
+                    ((FileInfo)fsObject).Delete();
+                }
+                //DirectoryInfo dirInfo = new DirectoryInfo(tbPath.Text);
+                
+            }
+            catch (Exception ex)
+            {
+                //Console.WriteLine(ex.Message);
+            }
+            ((FileInfo)fsObject).Delete();*/
+        }
+        void cbView_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            switch (cbView.SelectedItem.ToString())
+            {
+                case "Крупные значки":
+                    listView1.View = View.LargeIcon;
+                    break;
+                case "Мелкие значки":
+                    listView1.View = View.SmallIcon;
+                    break;
+                case "Таблица":
+                    listView1.View = View.Details;
+                    listView1.FullRowSelect = true;
+                    break;
+                case "Список":
+                    listView1.View = View.List;
+                    break;
+                case "Плитка":
+                    listView1.View = View.Tile;
+                    break;
+                default:
+                    MessageBox.Show("Неизвестный режим отображения", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    break;
+            }
+        }
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+           // if(textBox1.Text==)
+        }
+
+        /*private void twDir_AfterLabelEdit(object sender, NodeLabelEditEventArgs e)
+        {
+            string currentPath = e.Node.FullPath;
+            string newDirectoryName = e.Label;
+
+            if (newDirectoryName == null || newDirectoryName.Trim().Length == 0)
+            {
+                e.CancelEdit = true;
+                return;
+            }
+
+            string newFullName = Path.Combine(e.Node.Parent.FullPath, newDirectoryName);
+
+            DirectoryInfo currentDirectory = new DirectoryInfo(currentPath);
+
+            try
+            {
+                currentDirectory.MoveTo(newFullName);
+
+                if (GetDirs(newFullName))
+                {
+                    DriveTreeInit();
+                    tbPath.Text = newFullName;
+                }
+            }
+            catch
+            {
+                MessageBox.Show("Невозможно переименовать каталог", "Внимание", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                e.CancelEdit = true;
+            }
+        }*/
     }
 }

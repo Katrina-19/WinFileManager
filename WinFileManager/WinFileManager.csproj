@@ -94,6 +94,19 @@
     <Content Include="Pictures\paste.png" />
     <Content Include="Pictures\setting.png" />
     <Content Include="Pictures\share.png" />
+    <None Include="Resources\icons8-файл-48.png" />
+    <None Include="Resources\icons8-file-path-48.png" />
+    <None Include="Resources\icons8-добавить-папку-48.png" />
+    <None Include="Resources\icons8-вырезать-48.png" />
+    <None Include="Resources\icons8-скопировать-48.png" />
+    <None Include="Resources\icons8-вставить-48.png" />
+    <None Include="Resources\icons8-поделиться-48.png" />
+    <None Include="Resources\icons8-мусор-48.png" />
+    <None Include="Resources\icons8-настройки-48.png" />
+    <None Include="Resources\icons8-настройки-48 %281%29.png" />
+    <None Include="Resources\icons8-вверх-48.png" />
+    <None Include="Resources\icons8-налево-48.png" />
+    <None Include="Resources\icons8-направо-48.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

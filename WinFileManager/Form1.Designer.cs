@@ -45,6 +45,7 @@ namespace WinFileManager
             this.btnCut = new System.Windows.Forms.Button();
             this.btnFolder = new System.Windows.Forms.Button();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.toolStripView = new System.Windows.Forms.ToolStrip();
             this.btnup = new System.Windows.Forms.Button();
             this.btnright = new System.Windows.Forms.Button();
             this.btnleft = new System.Windows.Forms.Button();
@@ -63,6 +64,7 @@ namespace WinFileManager
             // 
             this.twDir.ImageIndex = 2;
             this.twDir.ImageList = this.imageList1;
+            this.twDir.LabelEdit = true;
             this.twDir.Location = new System.Drawing.Point(1, 150);
             this.twDir.Name = "twDir";
             this.twDir.SelectedImageIndex = 0;
@@ -70,14 +72,15 @@ namespace WinFileManager
             this.twDir.TabIndex = 0;
             this.twDir.BeforeExpand += new System.Windows.Forms.TreeViewCancelEventHandler(this.twDir_BeforeExpand);
             this.twDir.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.twDir_AfterSelect);
+            this.twDir.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.twDir_NodeMouseClick);
             // 
             // imageList1
             // 
             this.imageList1.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageList1.ImageStream")));
             this.imageList1.TransparentColor = System.Drawing.Color.Transparent;
-            this.imageList1.Images.SetKeyName(0, "Folder.png");
-            this.imageList1.Images.SetKeyName(1, "Network.png");
-            this.imageList1.Images.SetKeyName(2, "Hardrive.png");
+            this.imageList1.Images.SetKeyName(0, "Hardrive.png");
+            this.imageList1.Images.SetKeyName(1, "Folder.png");
+            this.imageList1.Images.SetKeyName(2, "Network.png");
             this.imageList1.Images.SetKeyName(3, "Folder Grey.png");
             this.imageList1.Images.SetKeyName(4, "Blank.png");
             this.imageList1.Images.SetKeyName(5, "Lock.png");
@@ -103,6 +106,12 @@ namespace WinFileManager
             // cbView
             // 
             this.cbView.FormattingEnabled = true;
+            this.cbView.Items.AddRange(new object[] {
+            "Крупные значки",
+            "Мелкие значки",
+            "Список",
+            "Таблица",
+            "Плитка"});
             this.cbView.Location = new System.Drawing.Point(593, 34);
             this.cbView.Name = "cbView";
             this.cbView.Size = new System.Drawing.Size(136, 24);
@@ -118,7 +127,7 @@ namespace WinFileManager
             // 
             // btnSettings
             // 
-            this.btnSettings.BackgroundImage = global::WinFileManager.Properties.Resources.setting;
+            this.btnSettings.BackgroundImage = global::WinFileManager.Properties.Resources.icons8_настройки_48;
             this.btnSettings.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
             this.btnSettings.Location = new System.Drawing.Point(735, 21);
             this.btnSettings.Name = "btnSettings";
@@ -128,17 +137,18 @@ namespace WinFileManager
             // 
             // btnDelete
             // 
-            this.btnDelete.BackgroundImage = global::WinFileManager.Properties.Resources.delete;
+            this.btnDelete.BackgroundImage = global::WinFileManager.Properties.Resources.icons8_мусор_48;
             this.btnDelete.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
             this.btnDelete.Location = new System.Drawing.Point(356, 21);
             this.btnDelete.Name = "btnDelete";
             this.btnDelete.Size = new System.Drawing.Size(51, 48);
             this.btnDelete.TabIndex = 6;
             this.btnDelete.UseVisualStyleBackColor = true;
+            this.btnDelete.Click += new System.EventHandler(this.btnDelete_Click);
             // 
             // btnShare
             // 
-            this.btnShare.BackgroundImage = global::WinFileManager.Properties.Resources.share;
+            this.btnShare.BackgroundImage = global::WinFileManager.Properties.Resources.icons8_поделиться_48;
             this.btnShare.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
             this.btnShare.Location = new System.Drawing.Point(298, 21);
             this.btnShare.Name = "btnShare";
@@ -148,7 +158,7 @@ namespace WinFileManager
             // 
             // btnPath
             // 
-            this.btnPath.BackgroundImage = global::WinFileManager.Properties.Resources.link;
+            this.btnPath.BackgroundImage = global::WinFileManager.Properties.Resources.icons8_file_path_48;
             this.btnPath.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
             this.btnPath.Location = new System.Drawing.Point(241, 21);
             this.btnPath.Name = "btnPath";
@@ -158,7 +168,7 @@ namespace WinFileManager
             // 
             // btnPaste
             // 
-            this.btnPaste.BackgroundImage = global::WinFileManager.Properties.Resources.paste;
+            this.btnPaste.BackgroundImage = global::WinFileManager.Properties.Resources.icons8_вставить_48;
             this.btnPaste.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
             this.btnPaste.Location = new System.Drawing.Point(184, 21);
             this.btnPaste.Name = "btnPaste";
@@ -168,37 +178,41 @@ namespace WinFileManager
             // 
             // btnCopy
             // 
-            this.btnCopy.BackgroundImage = global::WinFileManager.Properties.Resources.copy;
+            this.btnCopy.BackgroundImage = global::WinFileManager.Properties.Resources.icons8_скопировать_48;
             this.btnCopy.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
             this.btnCopy.Location = new System.Drawing.Point(124, 21);
             this.btnCopy.Name = "btnCopy";
             this.btnCopy.Size = new System.Drawing.Size(54, 48);
             this.btnCopy.TabIndex = 2;
             this.btnCopy.UseVisualStyleBackColor = true;
+            this.btnCopy.Click += new System.EventHandler(this.btnCopy_Click);
             // 
             // btnCut
             // 
-            this.btnCut.BackgroundImage = global::WinFileManager.Properties.Resources.cut;
+            this.btnCut.BackgroundImage = global::WinFileManager.Properties.Resources.icons8_вырезать_48;
             this.btnCut.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
             this.btnCut.Location = new System.Drawing.Point(66, 21);
             this.btnCut.Name = "btnCut";
             this.btnCut.Size = new System.Drawing.Size(52, 48);
             this.btnCut.TabIndex = 1;
             this.btnCut.UseVisualStyleBackColor = true;
+            this.btnCut.Click += new System.EventHandler(this.btnCut_Click);
             // 
             // btnFolder
             // 
             this.btnFolder.BackColor = System.Drawing.Color.Transparent;
-            this.btnFolder.BackgroundImage = global::WinFileManager.Properties.Resources.add_folder;
+            this.btnFolder.BackgroundImage = global::WinFileManager.Properties.Resources.icons8_добавить_папку_48;
             this.btnFolder.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
             this.btnFolder.Location = new System.Drawing.Point(11, 21);
             this.btnFolder.Name = "btnFolder";
             this.btnFolder.Size = new System.Drawing.Size(49, 48);
             this.btnFolder.TabIndex = 0;
             this.btnFolder.UseVisualStyleBackColor = false;
+            this.btnFolder.Click += new System.EventHandler(this.btnFolder_Click);
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.toolStripView);
             this.groupBox2.Controls.Add(this.btnup);
             this.groupBox2.Controls.Add(this.btnright);
             this.groupBox2.Controls.Add(this.btnleft);
@@ -208,9 +222,18 @@ namespace WinFileManager
             this.groupBox2.TabIndex = 0;
             this.groupBox2.TabStop = false;
             // 
+            // toolStripView
+            // 
+            this.toolStripView.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.toolStripView.Location = new System.Drawing.Point(3, 18);
+            this.toolStripView.Name = "toolStripView";
+            this.toolStripView.Size = new System.Drawing.Size(176, 25);
+            this.toolStripView.TabIndex = 8;
+            this.toolStripView.Text = "toolStripView";
+            // 
             // btnup
             // 
-            this.btnup.BackgroundImage = global::WinFileManager.Properties.Resources.free_icon_up_arrow_109583;
+            this.btnup.BackgroundImage = global::WinFileManager.Properties.Resources.icons8_вверх_48;
             this.btnup.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
             this.btnup.Location = new System.Drawing.Point(124, 21);
             this.btnup.Name = "btnup";
@@ -221,7 +244,7 @@ namespace WinFileManager
             // 
             // btnright
             // 
-            this.btnright.BackgroundImage = global::WinFileManager.Properties.Resources.free_icon_right_arrow_109617;
+            this.btnright.BackgroundImage = global::WinFileManager.Properties.Resources.icons8_направо_48;
             this.btnright.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
             this.btnright.Location = new System.Drawing.Point(66, 21);
             this.btnright.Name = "btnright";
@@ -231,7 +254,7 @@ namespace WinFileManager
             // 
             // btnleft
             // 
-            this.btnleft.BackgroundImage = global::WinFileManager.Properties.Resources.free_icon_left_arrow_109618;
+            this.btnleft.BackgroundImage = global::WinFileManager.Properties.Resources.icons8_налево_48;
             this.btnleft.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
             this.btnleft.Location = new System.Drawing.Point(11, 21);
             this.btnleft.Name = "btnleft";
@@ -246,6 +269,7 @@ namespace WinFileManager
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(179, 22);
             this.textBox1.TabIndex = 3;
+            this.textBox1.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
             // 
             // tbPath
             // 
@@ -383,6 +407,7 @@ namespace WinFileManager
             this.Load += new System.EventHandler(this.Form1_Load);
             this.groupBox1.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
+            this.groupBox2.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -414,6 +439,7 @@ namespace WinFileManager
         private System.Windows.Forms.ImageList imageList1;
         private System.Windows.Forms.ListView listView1;
         private System.Windows.Forms.ImageList imageList2;
+        private System.Windows.Forms.ToolStrip toolStripView;
     }
 }
 
