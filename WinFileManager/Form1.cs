@@ -1,13 +1,10 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 
@@ -16,34 +13,274 @@ namespace WinFileManager
     public partial class Form1 : Form
     {
         private string FilePath = "D:";
-        //private string cNode= "C:";
-        private bool isFile=false;
+        private bool isFile = false;
         private string selectedItem = "";
-        private const int BYTE_IN_KILOBYTE = 1000;
-        private const int COLUMN_WIDTH = 120;
-        //private string topLevelName = "Этот компьютер";
-        private string[] viewModes = { "Крупные значки", "Мелкие значки", "Список", "Таблица", "Плитка" };
-        private Dictionary<string, int> columnsFiles = new Dictionary<string, int>();
-        private Dictionary<string, int> columnsDrives = new Dictionary<string, int>();
-        private string[] columnsForFiles = { "Имя", "Размер", "Дата создания", "Дата изменения" };
-        private string[] columnsForDrives = { "Имя", "Тип", "Файловая система", "Общий размер", "Свободно" };
-        private List<string> prevStack;
-        private List<string> nextStack;
+        private string[] columnsForFiles = { "Name", "Type", "Size", "Date of creation", "Date of change" };
+        private List<FileSystemInfo> fileSystemItems = new List<FileSystemInfo>();
         public Form1()
         {
             InitializeComponent();
             DriveTreeInit();
             cbView.SelectedIndex = 0;
-            cbView.SelectedIndexChanged += cbView_SelectedIndexChanged;
-            prevStack = new List<string>();
-            nextStack = new List<string>();
+            cbSort.SelectedIndex = 0;
         }
-
-        private void Form1_Load(object sender,EventArgs e)
+        #region Events
+        private void Form1_Load(object sender, EventArgs e)
         {
-            tbPath.Text= FilePath;
+            tbPath.Text = FilePath;
             loadFiles();
         }
+        #region TreeView
+        private void twDir_BeforeExpand(object sender, TreeViewCancelEventArgs e)
+        {
+            twDir.BeginUpdate();
+
+            foreach (TreeNode node in e.Node.Nodes)
+            {
+                GetDirs(node);
+            }
+
+            twDir.EndUpdate();
+        }
+        private void twDir_AfterSelect(object sender, TreeViewEventArgs e)
+        {
+            TreeNode selectedNode = e.Node;
+            FilePath = selectedNode.FullPath;
+            tbPath.Text = FilePath.Substring(0, FilePath.Length - 1); ;
+
+            DirectoryInfo di = new DirectoryInfo(FilePath);
+            FileInfo[] fiArray;
+            DirectoryInfo[] diArray;
+
+            try
+            {
+                fiArray = di.GetFiles();
+                diArray = di.GetDirectories();
+            }
+            catch
+            {
+                return;
+            }
+
+            listView1.Items.Clear();
+            loadFiles();
+        }
+        private void twDir_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
+        {
+            TreeNode selectedNode = e.Node;
+            FilePath = selectedNode.FullPath;
+            tbPath.Text = FilePath;
+
+            DirectoryInfo di = new DirectoryInfo(FilePath);
+            FileInfo[] fiArray;
+            DirectoryInfo[] diArray;
+
+            try
+            {
+                fiArray = di.GetFiles();
+                diArray = di.GetDirectories();
+            }
+            catch
+            {
+                return;
+            }
+
+            listView1.Items.Clear();
+            loadFiles();
+        }
+        #endregion
+        #region ListView
+        private void listView1_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
+        {
+            selectedItem = e.Item.Text;
+            FileAttributes attrs = File.GetAttributes(FilePath + "/" + selectedItem);
+            if ((attrs & FileAttributes.Directory) == FileAttributes.Directory)
+            {
+                isFile = false;
+                tbPath.Text = FilePath + "/" + selectedItem;
+            }
+            else
+            {
+                isFile = true;
+            }
+        }
+        private void listView1_DoubleClick(object sender, EventArgs e)
+        {
+            FilePath = tbPath.Text;
+            loadFiles();
+            isFile = false;
+        }
+        private void listView1_MouseClick(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                if (listView1.FocusedItem.Bounds.Contains(e.Location))
+                {
+                    contextMenuStrip1.Show(Cursor.Position);
+                }
+            }
+        }
+        private void listView1_ColumnClick(object sender, ColumnClickEventArgs e)
+        {
+            ListView lsw = (ListView)sender;
+            if (e.Column == ListViewItemComparer.SortColumn)
+            {
+                if (ListViewItemComparer.Order == SortOrder.Ascending)
+                {
+                    ListViewItemComparer.Order = SortOrder.Descending;
+                }
+                else
+                {
+                    ListViewItemComparer.Order = SortOrder.Ascending;
+                }
+            }
+            else
+            {
+                ListViewItemComparer.SortColumn = e.Column;
+                ListViewItemComparer.Order = SortOrder.Ascending;
+            }
+            this.listView1.ListViewItemSorter = new ListViewItemComparer(e.Column);
+        }
+        #endregion
+        #region OtherElements
+        private void tbPath_Enter(object sender, EventArgs e)
+        {
+            FilePath = tbPath.Text;
+            loadFiles();
+            isFile = false;
+        }
+        private void btnup_Click(object sender, EventArgs e)
+        {
+            back();
+            loadFiles();
+        }
+        private void btnFolder_Click(object sender, EventArgs e)
+        {
+            string myname = "";
+            string mypath = "";
+
+            FolderBrowserDialog dialog = new FolderBrowserDialog();
+            dialog.Description = "Add Folder";
+            dialog.ShowNewFolderButton = true;
+            dialog.SelectedPath = tbPath.Text;
+
+            if (dialog.ShowDialog() == DialogResult.OK)
+            {
+                mypath = dialog.SelectedPath;
+                myname = mypath.Substring(mypath.LastIndexOf("\\") + 1);
+
+                AddFolderNode(myname, mypath);
+            }
+        }
+        private void btnCut_Click(object sender, EventArgs e)
+        {
+            Copy();
+            Delete();
+            Paste();
+        }
+        private void btnCopy_Click(object sender, EventArgs e)
+        {
+            Copy();
+        }
+        private void btnDelete_Click(object sender, EventArgs e)
+        {
+            Delete();
+        }
+        private void cbView_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            cbViewSelect();
+        }
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+            Detaild();
+            ListViewItem foundItem = listView1.FindItemWithText(textBox1.Text, false, 0, true);
+            if (foundItem != null)
+            {
+                listView1.TopItem = foundItem;
+            }
+            if (textBox1.Text == "")
+            {
+                cbViewSelect();
+                loadFiles();
+            }
+        }
+        private void btnPath_Click(object sender, EventArgs e)
+        {
+            Clipboard.SetText(FilePath + "/" + listView1.FocusedItem.Text);
+        }
+        private void btnPaste_Click(object sender, EventArgs e)
+        {
+            Paste();
+        }
+        private void cbSort_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            switch (cbSort.SelectedItem.ToString())
+            {
+                case "None":
+                    listView1.Sorting = SortOrder.None;
+                    break;
+                case "By name (A-Z)":
+                    listView1.Sorting = SortOrder.Ascending;
+                    break;
+                case "By name (Z-A)":
+                    listView1.Sorting = SortOrder.Descending;
+                    break;
+                case "Extended":
+                    Detaild();
+                    break;
+                default:
+                    MessageBox.Show("Unknown", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    break;
+            }
+        }
+        void pasteMenuItem_Click(object sender, EventArgs e)
+        {
+            Paste();
+        }
+        void copyMenuItem_Click(object sender, EventArgs e)
+        {
+            Copy();
+        }
+        void cutMenuItem_Click(object sender, EventArgs e)
+        {
+            Copy();
+            Delete();
+            Paste();
+        }
+        void deleteMenuItem_Click(object sender, EventArgs e)
+        {
+            Delete();
+        }
+        void pathMenuItem_Click(object sender, EventArgs e)
+        {
+            Clipboard.SetText(FilePath + "/" + listView1.FocusedItem.Text);
+        }
+        void propertiesMenuItem_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("Name" + listView1.FocusedItem.Text + "\n" + "Full path" + FilePath + "/" + listView1.FocusedItem.Text, "Properties", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            if (checkBox1.Checked)
+            {
+                this.BackColor = Color.DarkSlateBlue;
+                listView1.BackColor = Color.DarkSlateBlue;
+                listView1.ForeColor = Color.White;
+                twDir.BackColor = Color.DarkSlateBlue;
+                twDir.ForeColor = Color.White;
+            }
+            else
+            {
+                this.BackColor = Color.White;
+                listView1.BackColor = Color.White;
+                listView1.ForeColor = Color.Black;
+                twDir.BackColor = Color.White;
+                twDir.ForeColor = Color.Black;
+            }
+        }
+        #endregion
+        #endregion
+        #region Methods
         public void DriveTreeInit()
         {
             string[] drivesArray = Directory.GetLogicalDrives();
@@ -58,8 +295,6 @@ namespace WinFileManager
 
                 GetDirs(drive);
             }
-
-
             twDir.EndUpdate();
         }
         public void GetDirs(TreeNode node)
@@ -86,17 +321,6 @@ namespace WinFileManager
                 node.Nodes.Add(dir);
             }
         }
-        private void twDir_BeforeExpand(object sender, TreeViewCancelEventArgs e)
-        {
-            twDir.BeginUpdate();
-
-            foreach (TreeNode node in e.Node.Nodes)
-            {
-                GetDirs(node);
-            }
-
-            twDir.EndUpdate();
-        }
         public void loadFiles()
         {
             DirectoryInfo fileList;
@@ -105,7 +329,7 @@ namespace WinFileManager
             {
                 if (isFile)
                 {
-                    tempPath= FilePath + "/" + selectedItem;
+                    tempPath = FilePath + "/" + selectedItem;
                     Process.Start(tempPath);
                 }
                 else
@@ -314,13 +538,14 @@ namespace WinFileManager
                                 listView1.Items.Add(files[i].Name, 1);
                                 break;
                         }
-                        
+
                     }
                     for (int i = 0; i < dirs.Length; i++)
                     {
-                        listView1.Items.Add(dirs[i].Name,0);
+                        listView1.Items.Add(dirs[i].Name, 0);
                     }
-                    label1.Text ="Files:" + (files.Count() + dirs.Count()).ToString();
+                    label1.Text = "Files:" + (files.Count() + dirs.Count()).ToString();
+
                 }
             }
             catch (Exception e)
@@ -330,10 +555,10 @@ namespace WinFileManager
         }
         public void removeSlash()
         {
-            string path=tbPath.Text;
-            if(path.LastIndexOf("/") == path.Length - 1)
+            string path = tbPath.Text;
+            if (path.LastIndexOf("/") == path.Length - 1)
             {
-                tbPath.Text = path.Substring(0, path.Length-1);
+                tbPath.Text = path.Substring(0, path.Length - 1);
             }
         }
         public void back()
@@ -341,296 +566,200 @@ namespace WinFileManager
             try
             {
                 removeSlash();
-                string path=tbPath.Text;
-                path=path.Substring(0,path.LastIndexOf("/"));
+                string path = tbPath.Text;
+                path = path.Substring(0, path.LastIndexOf("/"));
                 isFile = false;
                 tbPath.Text = path;
                 removeSlash();
             }
-            catch(Exception e)
+            catch (Exception e)
             {
-
-            }
-        }
-
-        private void twDir_AfterSelect(object sender, TreeViewEventArgs e)
-        {
-            TreeNode selectedNode = e.Node;
-            FilePath = selectedNode.FullPath;
-            tbPath.Text = FilePath.Substring(0, FilePath.Length - 1); ;
-
-            DirectoryInfo di = new DirectoryInfo(FilePath);
-            FileInfo[] fiArray;
-            DirectoryInfo[] diArray;
-
-            try
-            {
-                fiArray = di.GetFiles();
-                diArray = di.GetDirectories();
-            }
-            catch
-            {
-                return;
-            }
-
-            listView1.Items.Clear();
-            loadFiles();
-        }
-
-        private void listView1_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
-        {
-            selectedItem = e.Item.Text;
-            FileAttributes attrs = File.GetAttributes(FilePath + "/" + selectedItem);
-            if((attrs & FileAttributes.Directory)==FileAttributes.Directory)
-            {
-                isFile = false;
-                tbPath.Text = FilePath + "/" + selectedItem;
-            }
-            else
-            {
-                isFile = true;
-            }
-        }
-
-        private void listView1_DoubleClick(object sender, EventArgs e)
-        {
-            FilePath = tbPath.Text;
-            loadFiles();
-            isFile = false;
-        }
-
-        private void tbPath_Enter(object sender, EventArgs e)
-        {
-            FilePath = tbPath.Text;
-            loadFiles();
-            isFile = false;
-        }
-
-        private void btnup_Click(object sender, EventArgs e)
-        {
-            back();
-            loadFiles();
-        }
-
-        private void btnleft_Click(object sender, EventArgs e)
-        {
-            
-        }
-
-        private void twDir_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
-        {
-            TreeNode selectedNode = e.Node;
-            FilePath = selectedNode.FullPath;
-            tbPath.Text = FilePath;
-
-            DirectoryInfo di = new DirectoryInfo(FilePath);
-            FileInfo[] fiArray;
-            DirectoryInfo[] diArray;
-
-            try
-            {
-                fiArray = di.GetFiles();
-                diArray = di.GetDirectories();
-            }
-            catch
-            {
-                return;
-            }
-
-            listView1.Items.Clear();
-            loadFiles();
-        }
-
-        private void btnFolder_Click(object sender, EventArgs e)
-        {
-            string myname = "";
-            string mypath = "";
-
-
-            FolderBrowserDialog dialog = new FolderBrowserDialog();
-            dialog.Description = "Add Folder";
-            dialog.ShowNewFolderButton = true;
-            dialog.SelectedPath = tbPath.Text;
-
-            if (dialog.ShowDialog() == DialogResult.OK)
-            {
-                mypath = dialog.SelectedPath;
-                myname = mypath.Substring(mypath.LastIndexOf("\\") + 1);
-
-                AddFolderNode(myname, mypath);
 
             }
         }
         private void AddFolderNode(string name, string path)
         {
-            
-                try
-                {
-                    if (Directory.Exists(path))
-                    {
-                        foreach (string dir in Directory.GetDirectories(path))
-                        {
-                            TreeNode node = new TreeNode();
-                            node.Tag = dir;
-                            node.Text = dir.Substring(dir.LastIndexOf(@"\") + 1);
-                            node.ImageIndex = 1;
-                            twDir.Nodes.Add(node);
-                        }
-                    }
-                }
-                catch (Exception ex) 
-                {
-                    MessageBox.Show("Error while Filling the Explorer:" + ex.Message);
-                }
-           
-        }
-
-        private void btnCut_Click(object sender, EventArgs e)
-        {
-           /* FileSystemInfo fsObject;
-            string mypath = "";
-
-            FolderBrowserDialog dialog = new FolderBrowserDialog();
-            dialog.Description = "Ыelect the location to move the file";
-            dialog.ShowNewFolderButton = false;
-            dialog.SelectedPath = tbPath.Text;
-            mypath = dialog.SelectedPath;
-            if (dialog.ShowDialog() == DialogResult.OK)
-            {
-                string message = "";
-                try
-                {
-                    if (fsObject is DirectoryInfo)
-                    {
-                        message = "Не возможно переместить каталог";
-                        ((DirectoryInfo)fsObject).MoveTo(mypath);
-                    }
-                    else
-                    {
-                        message = "Не возможно переместить файл";
-                        ((FileInfo)fsObject).MoveTo(mypath);
-                    }
-                    
-                }
-                catch
-                {
-                    MessageBox.Show(message, "Внимание", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    
-                }
-            }
-            //listView1.SelectedItems.Clear();FileSystemInfo fsObject*/
-        }
-
-        private void btnCopy_Click(object sender, EventArgs e)
-        {
-           /* string mypath = "";
-
-            FolderBrowserDialog dialog = new FolderBrowserDialog();
-            dialog.Description = "Ыelect the location to move the file";
-            dialog.ShowNewFolderButton = false;
-            dialog.SelectedPath = tbPath.Text;
-            mypath = dialog.SelectedPath;
-            if (dialog.ShowDialog() == DialogResult.OK)
-            {
-                string message = "";
-                try
-                {
-                    message = "Не возможно переместить файл";
-                    ((FileInfo)fsObject).CopyTo(mypath);
-                }
-                catch
-                {
-                    MessageBox.Show(message, "Внимание", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-                }
-            }*/
-        }
-
-        private void btnDelete_Click(object sender, EventArgs e)
-        {
-           /* string message = "";
             try
             {
-                if (fsObject is DirectoryInfo)
+                if (Directory.Exists(path))
                 {
-                    message = "Не возможно переместить каталог";
-                    ((DirectoryInfo)fsObject).Delete(true);
+                    foreach (string dir in Directory.GetDirectories(path))
+                    {
+                        TreeNode node = new TreeNode();
+                        node.Tag = dir;
+                        node.Text = dir.Substring(dir.LastIndexOf(@"\") + 1);
+                        node.ImageIndex = 1;
+                        twDir.Nodes.Add(node);
+                    }
                 }
-                else
-                {
-                    message = "Не возможно переместить файл";
-                    ((FileInfo)fsObject).Delete();
-                }
-                //DirectoryInfo dirInfo = new DirectoryInfo(tbPath.Text);
-                
             }
             catch (Exception ex)
             {
-                //Console.WriteLine(ex.Message);
+                MessageBox.Show("Error while Filling the Explorer:" + ex.Message);
             }
-            ((FileInfo)fsObject).Delete();*/
         }
-        void cbView_SelectedIndexChanged(object sender, EventArgs e)
+        public void Copy()
+        {
+            if (listView1.SelectedItems.Count == 0)
+                return;
+
+            var selectedItems = new ListViewItem[listView1.SelectedItems.Count];
+            listView1.SelectedItems.CopyTo(selectedItems, 0);
+            Clipboard.SetDataObject(selectedItems, false);
+        }
+        public void Paste()
+        {
+            var selectedItems = Clipboard.GetDataObject().GetData(typeof(ListViewItem[]))
+                                    as ListViewItem[];
+            if (System.IO.Directory.Exists(selectedItems.ToString()))
+            {
+                string[] files = System.IO.Directory.GetFiles(selectedItems.ToString());
+                foreach (string s in files)
+                {
+                    string fileName = System.IO.Path.GetFileName(s);
+                    string destFile = System.IO.Path.Combine(tbPath.Text, fileName);
+                    System.IO.File.Copy(s, destFile, true);
+                }
+            }
+            else
+            {
+                Console.WriteLine("Source path does not exist!");
+            }
+
+            listView1.Items.AddRange(selectedItems);
+        }
+        public void Delete()
+        {
+            var selectedItems = new ListViewItem[listView1.SelectedItems.Count];
+            listView1.SelectedItems.CopyTo(selectedItems, 0);
+            if (listView1.SelectedIndices.Count > 0)
+            {
+                var confirmation = MessageBox.Show("Are you shure?", "Сonfirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                if (confirmation == DialogResult.Yes)
+                {
+                    for (int i = listView1.SelectedIndices.Count - 1; i >= 0; i--)
+                    {
+
+                        listView1.Items.RemoveAt(listView1.SelectedIndices[i]);
+
+                    }
+                }
+            }
+            else
+                MessageBox.Show("The selected file does not exist", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+           
+        }
+        public void Detaild()
+        {
+            listView1.View = View.Details;
+            listView1.FullRowSelect = true;
+            listView1.Items.Clear();
+            foreach (string s in columnsForFiles)
+            {
+                listView1.Columns.Add(s, 100);
+            }
+            string[] directories = Directory.GetDirectories(FilePath);
+            foreach (string directory in directories)
+            {
+                DirectoryInfo di = new DirectoryInfo(directory);
+                fileSystemItems.Add(di);
+            }
+
+            string[] files = Directory.GetFiles(FilePath);
+            foreach (string file in files)
+            {
+                FileInfo fi = new FileInfo(file);
+                fileSystemItems.Add(fi);
+            }
+
+            ListViewItem lviFile = null;
+            foreach (FileSystemInfo file in fileSystemItems)
+            {
+                listView1.BeginUpdate();
+                lviFile = new ListViewItem();
+                lviFile.Tag = file;
+                lviFile.Text = file.Name;
+
+                if (file is DirectoryInfo)
+                {
+                    lviFile.ImageIndex = 1;
+                    lviFile.SubItems.Add("Catalog");
+                    lviFile.SubItems.Add("-");
+                }
+
+                else if (file is FileInfo)
+                {
+                    FileInfo currentFile = file as FileInfo;
+                    if (currentFile == null)
+                    {
+                        return;
+                    }
+                    string fileExtention = currentFile.Extension.ToLower();
+                    lviFile.SubItems.Add(fileExtention);
+                    lviFile.SubItems.Add(currentFile.Length.ToString());
+                }
+                lviFile.SubItems.Add(file.CreationTime.ToString());
+                lviFile.SubItems.Add(file.LastWriteTime.ToString());
+
+                listView1.Items.Add(lviFile);
+
+                listView1.EndUpdate();
+            }
+        }
+        public void cbViewSelect()
         {
             switch (cbView.SelectedItem.ToString())
             {
-                case "Крупные значки":
+                case "Large Icon":
                     listView1.View = View.LargeIcon;
                     break;
-                case "Мелкие значки":
+                case "Small Icon":
                     listView1.View = View.SmallIcon;
                     break;
-                case "Таблица":
-                    listView1.View = View.Details;
-                    listView1.FullRowSelect = true;
+                case "Details":
+                    Detaild();
                     break;
-                case "Список":
+                case "List":
                     listView1.View = View.List;
                     break;
-                case "Плитка":
+                case "Tile":
                     listView1.View = View.Tile;
                     break;
                 default:
-                    MessageBox.Show("Неизвестный режим отображения", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("Unknown", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     break;
             }
         }
-
-        private void textBox1_TextChanged(object sender, EventArgs e)
+        #endregion
+    }
+    class ListViewItemComparer : IComparer
+    {
+        private int col;
+        public static int SortColumn { get; set; }
+        public static SortOrder Order { get; set; }
+        public ListViewItemComparer()
         {
-           // if(textBox1.Text==)
+            col = 0;
         }
-
-        /*private void twDir_AfterLabelEdit(object sender, NodeLabelEditEventArgs e)
+        public ListViewItemComparer(int column)
         {
-            string currentPath = e.Node.FullPath;
-            string newDirectoryName = e.Label;
+            col = column;
+        }
+        public string FullCompareString(string s)
+        {
+            string Res = s;
+            while (Res.Length < 10) Res = "0" + Res;
+            return Res;
+        }
+        public int Compare(object x, object y)
+        {
 
-            if (newDirectoryName == null || newDirectoryName.Trim().Length == 0)
-            {
-                e.CancelEdit = true;
-                return;
-            }
-
-            string newFullName = Path.Combine(e.Node.Parent.FullPath, newDirectoryName);
-
-            DirectoryInfo currentDirectory = new DirectoryInfo(currentPath);
-
-            try
-            {
-                currentDirectory.MoveTo(newFullName);
-
-                if (GetDirs(newFullName))
-                {
-                    DriveTreeInit();
-                    tbPath.Text = newFullName;
-                }
-            }
-            catch
-            {
-                MessageBox.Show("Невозможно переименовать каталог", "Внимание", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                e.CancelEdit = true;
-            }
-        }*/
+            string s1 = FullCompareString(((ListViewItem)x).SubItems[col].Text);
+            string s2 = FullCompareString(((ListViewItem)y).SubItems[col].Text);
+            if (Order == SortOrder.Ascending)
+                return String.Compare(s1, s2);
+            else
+                return String.Compare(s2, s1);
+        }
     }
 }

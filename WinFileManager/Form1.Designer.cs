@@ -34,30 +34,34 @@ namespace WinFileManager
             this.twDir = new System.Windows.Forms.TreeView();
             this.imageList1 = new System.Windows.Forms.ImageList(this.components);
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.cbView = new System.Windows.Forms.ComboBox();
             this.cbSort = new System.Windows.Forms.ComboBox();
-            this.btnSettings = new System.Windows.Forms.Button();
             this.btnDelete = new System.Windows.Forms.Button();
-            this.btnShare = new System.Windows.Forms.Button();
             this.btnPath = new System.Windows.Forms.Button();
             this.btnPaste = new System.Windows.Forms.Button();
             this.btnCopy = new System.Windows.Forms.Button();
             this.btnCut = new System.Windows.Forms.Button();
             this.btnFolder = new System.Windows.Forms.Button();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.toolStripView = new System.Windows.Forms.ToolStrip();
             this.btnup = new System.Windows.Forms.Button();
-            this.btnright = new System.Windows.Forms.Button();
-            this.btnleft = new System.Windows.Forms.Button();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.tbPath = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.listView1 = new System.Windows.Forms.ListView();
+            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.copyMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.pasteMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.cutMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.deleteMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.pathMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.propertiesMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.imageList2 = new System.Windows.Forms.ImageList(this.components);
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
+            this.contextMenuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // twDir
@@ -87,11 +91,10 @@ namespace WinFileManager
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.checkBox1);
             this.groupBox1.Controls.Add(this.cbView);
             this.groupBox1.Controls.Add(this.cbSort);
-            this.groupBox1.Controls.Add(this.btnSettings);
             this.groupBox1.Controls.Add(this.btnDelete);
-            this.groupBox1.Controls.Add(this.btnShare);
             this.groupBox1.Controls.Add(this.btnPath);
             this.groupBox1.Controls.Add(this.btnPaste);
             this.groupBox1.Controls.Add(this.btnCopy);
@@ -103,58 +106,54 @@ namespace WinFileManager
             this.groupBox1.TabIndex = 1;
             this.groupBox1.TabStop = false;
             // 
+            // checkBox1
+            // 
+            this.checkBox1.AutoSize = true;
+            this.checkBox1.Location = new System.Drawing.Point(693, 34);
+            this.checkBox1.Name = "checkBox1";
+            this.checkBox1.Size = new System.Drawing.Size(96, 20);
+            this.checkBox1.TabIndex = 10;
+            this.checkBox1.Text = "dark theme";
+            this.checkBox1.UseVisualStyleBackColor = true;
+            this.checkBox1.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
+            // 
             // cbView
             // 
-            this.cbView.FormattingEnabled = true;
             this.cbView.Items.AddRange(new object[] {
-            "Крупные значки",
-            "Мелкие значки",
-            "Список",
-            "Таблица",
-            "Плитка"});
-            this.cbView.Location = new System.Drawing.Point(593, 34);
+            "Large Icon",
+            "Small Icon",
+            "List",
+            "Details",
+            "Tile"});
+            this.cbView.Location = new System.Drawing.Point(528, 32);
             this.cbView.Name = "cbView";
-            this.cbView.Size = new System.Drawing.Size(136, 24);
+            this.cbView.Size = new System.Drawing.Size(157, 24);
             this.cbView.TabIndex = 9;
+            this.cbView.SelectedIndexChanged += new System.EventHandler(this.cbView_SelectedIndexChanged);
             // 
             // cbSort
             // 
-            this.cbSort.FormattingEnabled = true;
-            this.cbSort.Location = new System.Drawing.Point(432, 34);
+            this.cbSort.Items.AddRange(new object[] {
+            "None",
+            "By name (A-Z)",
+            "By name (Z-A)",
+            "Extended"});
+            this.cbSort.Location = new System.Drawing.Point(355, 32);
             this.cbSort.Name = "cbSort";
-            this.cbSort.Size = new System.Drawing.Size(137, 24);
+            this.cbSort.Size = new System.Drawing.Size(167, 24);
             this.cbSort.TabIndex = 8;
-            // 
-            // btnSettings
-            // 
-            this.btnSettings.BackgroundImage = global::WinFileManager.Properties.Resources.icons8_настройки_48;
-            this.btnSettings.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.btnSettings.Location = new System.Drawing.Point(735, 21);
-            this.btnSettings.Name = "btnSettings";
-            this.btnSettings.Size = new System.Drawing.Size(52, 48);
-            this.btnSettings.TabIndex = 7;
-            this.btnSettings.UseVisualStyleBackColor = true;
+            this.cbSort.SelectedIndexChanged += new System.EventHandler(this.cbSort_SelectedIndexChanged);
             // 
             // btnDelete
             // 
             this.btnDelete.BackgroundImage = global::WinFileManager.Properties.Resources.icons8_мусор_48;
             this.btnDelete.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.btnDelete.Location = new System.Drawing.Point(356, 21);
+            this.btnDelete.Location = new System.Drawing.Point(298, 21);
             this.btnDelete.Name = "btnDelete";
             this.btnDelete.Size = new System.Drawing.Size(51, 48);
             this.btnDelete.TabIndex = 6;
             this.btnDelete.UseVisualStyleBackColor = true;
             this.btnDelete.Click += new System.EventHandler(this.btnDelete_Click);
-            // 
-            // btnShare
-            // 
-            this.btnShare.BackgroundImage = global::WinFileManager.Properties.Resources.icons8_поделиться_48;
-            this.btnShare.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.btnShare.Location = new System.Drawing.Point(298, 21);
-            this.btnShare.Name = "btnShare";
-            this.btnShare.Size = new System.Drawing.Size(52, 48);
-            this.btnShare.TabIndex = 5;
-            this.btnShare.UseVisualStyleBackColor = true;
             // 
             // btnPath
             // 
@@ -165,6 +164,7 @@ namespace WinFileManager
             this.btnPath.Size = new System.Drawing.Size(51, 48);
             this.btnPath.TabIndex = 4;
             this.btnPath.UseVisualStyleBackColor = true;
+            this.btnPath.Click += new System.EventHandler(this.btnPath_Click);
             // 
             // btnPaste
             // 
@@ -175,6 +175,7 @@ namespace WinFileManager
             this.btnPaste.Size = new System.Drawing.Size(51, 48);
             this.btnPaste.TabIndex = 3;
             this.btnPaste.UseVisualStyleBackColor = true;
+            this.btnPaste.Click += new System.EventHandler(this.btnPaste_Click);
             // 
             // btnCopy
             // 
@@ -212,56 +213,23 @@ namespace WinFileManager
             // 
             // groupBox2
             // 
-            this.groupBox2.Controls.Add(this.toolStripView);
             this.groupBox2.Controls.Add(this.btnup);
-            this.groupBox2.Controls.Add(this.btnright);
-            this.groupBox2.Controls.Add(this.btnleft);
             this.groupBox2.Location = new System.Drawing.Point(1, 81);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(182, 63);
+            this.groupBox2.Size = new System.Drawing.Size(77, 63);
             this.groupBox2.TabIndex = 0;
             this.groupBox2.TabStop = false;
-            // 
-            // toolStripView
-            // 
-            this.toolStripView.ImageScalingSize = new System.Drawing.Size(20, 20);
-            this.toolStripView.Location = new System.Drawing.Point(3, 18);
-            this.toolStripView.Name = "toolStripView";
-            this.toolStripView.Size = new System.Drawing.Size(176, 25);
-            this.toolStripView.TabIndex = 8;
-            this.toolStripView.Text = "toolStripView";
             // 
             // btnup
             // 
             this.btnup.BackgroundImage = global::WinFileManager.Properties.Resources.icons8_вверх_48;
             this.btnup.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.btnup.Location = new System.Drawing.Point(124, 21);
+            this.btnup.Location = new System.Drawing.Point(11, 21);
             this.btnup.Name = "btnup";
             this.btnup.Size = new System.Drawing.Size(52, 42);
             this.btnup.TabIndex = 7;
             this.btnup.UseVisualStyleBackColor = true;
             this.btnup.Click += new System.EventHandler(this.btnup_Click);
-            // 
-            // btnright
-            // 
-            this.btnright.BackgroundImage = global::WinFileManager.Properties.Resources.icons8_направо_48;
-            this.btnright.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.btnright.Location = new System.Drawing.Point(66, 21);
-            this.btnright.Name = "btnright";
-            this.btnright.Size = new System.Drawing.Size(52, 42);
-            this.btnright.TabIndex = 6;
-            this.btnright.UseVisualStyleBackColor = true;
-            // 
-            // btnleft
-            // 
-            this.btnleft.BackgroundImage = global::WinFileManager.Properties.Resources.icons8_налево_48;
-            this.btnleft.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.btnleft.Location = new System.Drawing.Point(11, 21);
-            this.btnleft.Name = "btnleft";
-            this.btnleft.Size = new System.Drawing.Size(49, 42);
-            this.btnleft.TabIndex = 5;
-            this.btnleft.UseVisualStyleBackColor = true;
-            this.btnleft.Click += new System.EventHandler(this.btnleft_Click);
             // 
             // textBox1
             // 
@@ -308,6 +276,7 @@ namespace WinFileManager
             // 
             // listView1
             // 
+            this.listView1.ContextMenuStrip = this.contextMenuStrip1;
             this.listView1.HideSelection = false;
             this.listView1.LargeImageList = this.imageList2;
             this.listView1.Location = new System.Drawing.Point(189, 150);
@@ -315,8 +284,64 @@ namespace WinFileManager
             this.listView1.Size = new System.Drawing.Size(607, 404);
             this.listView1.TabIndex = 11;
             this.listView1.UseCompatibleStateImageBehavior = false;
+            this.listView1.ColumnClick += new System.Windows.Forms.ColumnClickEventHandler(this.listView1_ColumnClick);
             this.listView1.ItemSelectionChanged += new System.Windows.Forms.ListViewItemSelectionChangedEventHandler(this.listView1_ItemSelectionChanged);
             this.listView1.DoubleClick += new System.EventHandler(this.listView1_DoubleClick);
+            // 
+            // contextMenuStrip1
+            // 
+            this.contextMenuStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.copyMenuItem,
+            this.pasteMenuItem,
+            this.cutMenuItem,
+            this.deleteMenuItem,
+            this.pathMenuItem,
+            this.propertiesMenuItem});
+            this.contextMenuStrip1.Name = "contextMenuStrip1";
+            this.contextMenuStrip1.Size = new System.Drawing.Size(147, 148);
+            // 
+            // copyMenuItem
+            // 
+            this.copyMenuItem.Name = "copyMenuItem";
+            this.copyMenuItem.Size = new System.Drawing.Size(146, 24);
+            this.copyMenuItem.Text = "Copy";
+            this.copyMenuItem.Click += new System.EventHandler(this.copyMenuItem_Click);
+            // 
+            // pasteMenuItem
+            // 
+            this.pasteMenuItem.Name = "pasteMenuItem";
+            this.pasteMenuItem.Size = new System.Drawing.Size(146, 24);
+            this.pasteMenuItem.Text = "Paste";
+            this.pasteMenuItem.Click += new System.EventHandler(this.pasteMenuItem_Click);
+            // 
+            // cutMenuItem
+            // 
+            this.cutMenuItem.Name = "cutMenuItem";
+            this.cutMenuItem.Size = new System.Drawing.Size(146, 24);
+            this.cutMenuItem.Text = "Cut";
+            this.cutMenuItem.Click += new System.EventHandler(this.cutMenuItem_Click);
+            // 
+            // deleteMenuItem
+            // 
+            this.deleteMenuItem.Name = "deleteMenuItem";
+            this.deleteMenuItem.Size = new System.Drawing.Size(146, 24);
+            this.deleteMenuItem.Text = "Delete";
+            this.deleteMenuItem.Click += new System.EventHandler(this.deleteMenuItem_Click);
+            // 
+            // pathMenuItem
+            // 
+            this.pathMenuItem.Name = "pathMenuItem";
+            this.pathMenuItem.Size = new System.Drawing.Size(146, 24);
+            this.pathMenuItem.Text = "Copy path";
+            this.pathMenuItem.Click += new System.EventHandler(this.pathMenuItem_Click);
+            // 
+            // propertiesMenuItem
+            // 
+            this.propertiesMenuItem.Name = "propertiesMenuItem";
+            this.propertiesMenuItem.Size = new System.Drawing.Size(146, 24);
+            this.propertiesMenuItem.Text = "Properties";
+            this.propertiesMenuItem.Click += new System.EventHandler(this.propertiesMenuItem_Click);
             // 
             // imageList2
             // 
@@ -406,8 +431,9 @@ namespace WinFileManager
             this.Text = "Form1";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
             this.groupBox2.ResumeLayout(false);
-            this.groupBox2.PerformLayout();
+            this.contextMenuStrip1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -419,13 +445,9 @@ namespace WinFileManager
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.Button btnup;
-        private System.Windows.Forms.Button btnright;
-        private System.Windows.Forms.Button btnleft;
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.TextBox tbPath;
-        private System.Windows.Forms.Button btnSettings;
         private System.Windows.Forms.Button btnDelete;
-        private System.Windows.Forms.Button btnShare;
         private System.Windows.Forms.Button btnPath;
         private System.Windows.Forms.Button btnPaste;
         private System.Windows.Forms.Button btnCopy;
@@ -439,7 +461,14 @@ namespace WinFileManager
         private System.Windows.Forms.ImageList imageList1;
         private System.Windows.Forms.ListView listView1;
         private System.Windows.Forms.ImageList imageList2;
-        private System.Windows.Forms.ToolStrip toolStripView;
+        private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
+        private System.Windows.Forms.CheckBox checkBox1;
+        private System.Windows.Forms.ToolStripMenuItem copyMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem pasteMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem cutMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem deleteMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem pathMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem propertiesMenuItem;
     }
 }
 
