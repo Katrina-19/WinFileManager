@@ -104,7 +104,7 @@ namespace WinFileManager
                 isFile = true;
             }
         }
-        private void listView1_DoubleClick(object sender, EventArgs e)
+        private void listView1_DoubleClick(object sender, MouseEventArgs e)
         {
             FilePath = tbPath.Text;
             loadFiles();
@@ -257,7 +257,7 @@ namespace WinFileManager
         }
         void propertiesMenuItem_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Name" + listView1.FocusedItem.Text + "\n" + "Full path" + FilePath + "/" + listView1.FocusedItem.Text, "Properties", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show("Name: " + listView1.FocusedItem.Text + "\n" + "Full path: " + FilePath + "/" + listView1.FocusedItem.Text, "Properties", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
@@ -277,6 +277,11 @@ namespace WinFileManager
                 twDir.BackColor = Color.White;
                 twDir.ForeColor = Color.Black;
             }
+        }
+        private void btnReload_Click(object sender, EventArgs e)
+        {
+            isFile = false;
+            loadFiles();
         }
         #endregion
         #endregion
@@ -640,14 +645,14 @@ namespace WinFileManager
                     for (int i = listView1.SelectedIndices.Count - 1; i >= 0; i--)
                     {
 
-                        listView1.Items.RemoveAt(listView1.SelectedIndices[i]);
+                        //listView1.Items.RemoveAt(listView1.SelectedIndices[i]);
+                        File.Delete(FilePath + "/" + listView1.FocusedItem.Text);
 
                     }
                 }
             }
             else
-                MessageBox.Show("The selected file does not exist", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-           
+            { MessageBox.Show("The selected file does not exist", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error); }
         }
         public void Detaild()
         {

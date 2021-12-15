@@ -44,6 +44,7 @@ namespace WinFileManager
             this.btnCut = new System.Windows.Forms.Button();
             this.btnFolder = new System.Windows.Forms.Button();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.btnReload = new System.Windows.Forms.Button();
             this.btnup = new System.Windows.Forms.Button();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.tbPath = new System.Windows.Forms.TextBox();
@@ -213,20 +214,32 @@ namespace WinFileManager
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.btnReload);
             this.groupBox2.Controls.Add(this.btnup);
             this.groupBox2.Location = new System.Drawing.Point(1, 81);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(77, 63);
+            this.groupBox2.Size = new System.Drawing.Size(182, 63);
             this.groupBox2.TabIndex = 0;
             this.groupBox2.TabStop = false;
+            // 
+            // btnReload
+            // 
+            this.btnReload.BackgroundImage = global::WinFileManager.Properties.Resources.icons8_reload_32;
+            this.btnReload.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.btnReload.Location = new System.Drawing.Point(126, 12);
+            this.btnReload.Name = "btnReload";
+            this.btnReload.Size = new System.Drawing.Size(52, 51);
+            this.btnReload.TabIndex = 8;
+            this.btnReload.UseVisualStyleBackColor = true;
+            this.btnReload.Click += new System.EventHandler(this.btnReload_Click);
             // 
             // btnup
             // 
             this.btnup.BackgroundImage = global::WinFileManager.Properties.Resources.icons8_вверх_48;
             this.btnup.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.btnup.Location = new System.Drawing.Point(11, 21);
+            this.btnup.Location = new System.Drawing.Point(11, 12);
             this.btnup.Name = "btnup";
-            this.btnup.Size = new System.Drawing.Size(52, 42);
+            this.btnup.Size = new System.Drawing.Size(52, 51);
             this.btnup.TabIndex = 7;
             this.btnup.UseVisualStyleBackColor = true;
             this.btnup.Click += new System.EventHandler(this.btnup_Click);
@@ -284,9 +297,10 @@ namespace WinFileManager
             this.listView1.Size = new System.Drawing.Size(607, 404);
             this.listView1.TabIndex = 11;
             this.listView1.UseCompatibleStateImageBehavior = false;
+           // this.listView1.AfterLabelEdit += new System.Windows.Forms.LabelEditEventHandler(this.listView1_AfterLabelEdit);
             this.listView1.ColumnClick += new System.Windows.Forms.ColumnClickEventHandler(this.listView1_ColumnClick);
             this.listView1.ItemSelectionChanged += new System.Windows.Forms.ListViewItemSelectionChangedEventHandler(this.listView1_ItemSelectionChanged);
-            this.listView1.DoubleClick += new System.EventHandler(this.listView1_DoubleClick);
+            this.listView1.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.listView1_DoubleClick);
             // 
             // contextMenuStrip1
             // 
@@ -469,6 +483,7 @@ namespace WinFileManager
         private System.Windows.Forms.ToolStripMenuItem deleteMenuItem;
         private System.Windows.Forms.ToolStripMenuItem pathMenuItem;
         private System.Windows.Forms.ToolStripMenuItem propertiesMenuItem;
+        private System.Windows.Forms.Button btnReload;
     }
 }
 

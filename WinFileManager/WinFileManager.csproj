@@ -94,6 +94,8 @@
     <Content Include="Pictures\paste.png" />
     <Content Include="Pictures\setting.png" />
     <Content Include="Pictures\share.png" />
+    <Content Include="Resources\icons8-reload-32.png" />
+    <None Include="Resources\icons8-reload-321.png" />
     <None Include="Resources\icons8-файл-48.png" />
     <None Include="Resources\icons8-file-path-48.png" />
     <None Include="Resources\icons8-добавить-папку-48.png" />
