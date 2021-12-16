@@ -59,7 +59,11 @@ namespace WinFileManager
             this.deleteMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pathMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.propertiesMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.renameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.imageList2 = new System.Windows.Forms.ImageList(this.components);
+            this.tbName = new System.Windows.Forms.TextBox();
+            this.label4 = new System.Windows.Forms.Label();
+            this.button1 = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.contextMenuStrip1.SuspendLayout();
@@ -310,9 +314,10 @@ namespace WinFileManager
             this.cutMenuItem,
             this.deleteMenuItem,
             this.pathMenuItem,
-            this.propertiesMenuItem});
+            this.propertiesMenuItem,
+            this.renameToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(147, 148);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(147, 172);
             // 
             // copyMenuItem
             // 
@@ -355,6 +360,13 @@ namespace WinFileManager
             this.propertiesMenuItem.Size = new System.Drawing.Size(146, 24);
             this.propertiesMenuItem.Text = "Properties";
             this.propertiesMenuItem.Click += new System.EventHandler(this.propertiesMenuItem_Click);
+            // 
+            // renameToolStripMenuItem
+            // 
+            this.renameToolStripMenuItem.Name = "renameToolStripMenuItem";
+            this.renameToolStripMenuItem.Size = new System.Drawing.Size(146, 24);
+            this.renameToolStripMenuItem.Text = "Rename";
+            this.renameToolStripMenuItem.Click += new System.EventHandler(this.renameToolStripMenuItem_Click);
             // 
             // imageList2
             // 
@@ -426,11 +438,43 @@ namespace WinFileManager
             this.imageList2.Images.SetKeyName(63, "yml.png");
             this.imageList2.Images.SetKeyName(64, "zip.png");
             // 
+            // tbName
+            // 
+            this.tbName.Location = new System.Drawing.Point(415, 560);
+            this.tbName.Name = "tbName";
+            this.tbName.Size = new System.Drawing.Size(301, 22);
+            this.tbName.TabIndex = 12;
+            this.tbName.Visible = false;
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(331, 563);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(78, 16);
+            this.label4.TabIndex = 13;
+            this.label4.Text = "Enter name:";
+            this.label4.Visible = false;
+            // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(721, 560);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(75, 23);
+            this.button1.TabIndex = 14;
+            this.button1.Text = "OK";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Visible = false;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 585);
+            this.Controls.Add(this.button1);
+            this.Controls.Add(this.label4);
+            this.Controls.Add(this.tbName);
             this.Controls.Add(this.listView1);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
@@ -484,6 +528,10 @@ namespace WinFileManager
         private System.Windows.Forms.ToolStripMenuItem pathMenuItem;
         private System.Windows.Forms.ToolStripMenuItem propertiesMenuItem;
         private System.Windows.Forms.Button btnReload;
+        private System.Windows.Forms.TextBox tbName;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.ToolStripMenuItem renameToolStripMenuItem;
+        private System.Windows.Forms.Button button1;
     }
 }
 

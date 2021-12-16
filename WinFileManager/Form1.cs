@@ -15,6 +15,11 @@ namespace WinFileManager
         private string FilePath = "D:";
         private bool isFile = false;
         private string selectedItem = "";
+        private string pathToCopy = "";
+        private string nameToCopy = "";
+        private string prevPath = "";
+        private int count = 0;
+        FileInfo fileInfo;
         private string[] columnsForFiles = { "Name", "Type", "Size", "Date of creation", "Date of change" };
         private List<FileSystemInfo> fileSystemItems = new List<FileSystemInfo>();
         public Form1()
@@ -175,8 +180,7 @@ namespace WinFileManager
         private void btnCut_Click(object sender, EventArgs e)
         {
             Copy();
-            Delete();
-            Paste();
+            Cut();
         }
         private void btnCopy_Click(object sender, EventArgs e)
         {
@@ -193,7 +197,7 @@ namespace WinFileManager
         private void textBox1_TextChanged(object sender, EventArgs e)
         {
             Detaild();
-            ListViewItem foundItem = listView1.FindItemWithText(textBox1.Text, false, 0, true);
+            ListViewItem foundItem = listView1.FindItemWithText(textBox1.Text, true, 0, true);
             if (foundItem != null)
             {
                 listView1.TopItem = foundItem;
@@ -233,29 +237,28 @@ namespace WinFileManager
                     break;
             }
         }
-        void pasteMenuItem_Click(object sender, EventArgs e)
+        private void pasteMenuItem_Click(object sender, EventArgs e)
         {
             Paste();
         }
-        void copyMenuItem_Click(object sender, EventArgs e)
+        private void copyMenuItem_Click(object sender, EventArgs e)
         {
             Copy();
         }
-        void cutMenuItem_Click(object sender, EventArgs e)
+        private void cutMenuItem_Click(object sender, EventArgs e)
         {
             Copy();
-            Delete();
-            Paste();
+            Cut();
         }
-        void deleteMenuItem_Click(object sender, EventArgs e)
+        private void deleteMenuItem_Click(object sender, EventArgs e)
         {
             Delete();
         }
-        void pathMenuItem_Click(object sender, EventArgs e)
+        private void pathMenuItem_Click(object sender, EventArgs e)
         {
             Clipboard.SetText(FilePath + "/" + listView1.FocusedItem.Text);
         }
-        void propertiesMenuItem_Click(object sender, EventArgs e)
+        private void propertiesMenuItem_Click(object sender, EventArgs e)
         {
             MessageBox.Show("Name: " + listView1.FocusedItem.Text + "\n" + "Full path: " + FilePath + "/" + listView1.FocusedItem.Text, "Properties", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
@@ -282,6 +285,34 @@ namespace WinFileManager
         {
             isFile = false;
             loadFiles();
+        }
+        private void renameToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            label4.Visible = true;
+            tbName.Visible = true;
+            button1.Visible = true;
+            selectedItem = listView1.FocusedItem.Text;
+
+        }
+        private void button1_Click(object sender, EventArgs e)
+        {
+            if (tbName.Text == "")
+            {
+                MessageBox.Show("You did't enter a name", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+            else
+            {
+                string name = selectedItem;
+                int pos = name.LastIndexOf('.');
+                string expansion = name.Substring(pos);
+                name = tbName.Text + expansion;
+                File.Move(FilePath + "/" + selectedItem, FilePath + "/" + name);
+            }
+            isFile = false;
+            loadFiles();
+            label4.Visible = false;
+            tbName.Visible = false;
+            button1.Visible = false;
         }
         #endregion
         #endregion
@@ -607,31 +638,43 @@ namespace WinFileManager
         {
             if (listView1.SelectedItems.Count == 0)
                 return;
-
-            var selectedItems = new ListViewItem[listView1.SelectedItems.Count];
-            listView1.SelectedItems.CopyTo(selectedItems, 0);
-            Clipboard.SetDataObject(selectedItems, false);
+            
+            pathToCopy = FilePath + "/" + listView1.FocusedItem.Text;
+            nameToCopy = listView1.FocusedItem.Text;
+            fileInfo = new FileInfo(pathToCopy);
+            prevPath = FilePath;
         }
         public void Paste()
         {
-            var selectedItems = Clipboard.GetDataObject().GetData(typeof(ListViewItem[]))
-                                    as ListViewItem[];
-            if (System.IO.Directory.Exists(selectedItems.ToString()))
+            string insertPath = prevPath + "/" + nameToCopy;
+            if (File.Exists(insertPath))
             {
-                string[] files = System.IO.Directory.GetFiles(selectedItems.ToString());
-                foreach (string s in files)
-                {
-                    string fileName = System.IO.Path.GetFileName(s);
-                    string destFile = System.IO.Path.Combine(tbPath.Text, fileName);
-                    System.IO.File.Copy(s, destFile, true);
-                }
+                count++;
+                string indexPath = prevPath + "/"+"(" + count.ToString() + ")"+ nameToCopy;
+                fileInfo.CopyTo(indexPath, true);
             }
             else
             {
-                Console.WriteLine("Source path does not exist!");
+                fileInfo.CopyTo(insertPath);
             }
-
-            listView1.Items.AddRange(selectedItems);
+            isFile = false;
+            loadFiles();
+        }
+        public void Cut()
+        {
+            string insertPath = FilePath + "/" + nameToCopy;
+            if (File.Exists(insertPath))
+            {
+                count++;
+                string indexPath = FilePath + "/" + "(" + count.ToString() + ")" + nameToCopy;
+                fileInfo.CopyTo(indexPath, true);
+            }
+            else
+            {
+                fileInfo.MoveTo(insertPath);
+            }
+            isFile = false;
+            loadFiles();
         }
         public void Delete()
         {
@@ -644,15 +687,14 @@ namespace WinFileManager
                 {
                     for (int i = listView1.SelectedIndices.Count - 1; i >= 0; i--)
                     {
-
-                        //listView1.Items.RemoveAt(listView1.SelectedIndices[i]);
                         File.Delete(FilePath + "/" + listView1.FocusedItem.Text);
-
                     }
                 }
             }
             else
             { MessageBox.Show("The selected file does not exist", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error); }
+            isFile = false;
+            loadFiles();
         }
         public void Detaild()
         {
@@ -717,6 +759,8 @@ namespace WinFileManager
             {
                 case "Large Icon":
                     listView1.View = View.LargeIcon;
+                    isFile = false;
+                    loadFiles();
                     break;
                 case "Small Icon":
                     listView1.View = View.SmallIcon;
@@ -736,6 +780,8 @@ namespace WinFileManager
             }
         }
         #endregion
+
+       
     }
     class ListViewItemComparer : IComparer
     {
